@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum MatchResult {
+  WIN
+  DRAW
+  LOSS
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  matches      Match[]
+}
+
+model Field {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+
+  matches   Match[]
+}
+
+model MatchType {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+
+  matches   Match[]
+}
+
+model Match {
+  id          Int          @id @default(autoincrement())
+
+  user        User         @relation(fields: [userId], references: [id])
+  userId      String
+
+  date        DateTime
+
+  field       Field        @relation(fields: [fieldId], references: [id])
+  fieldId     Int
+
+  matchType   MatchType    @relation(fields: [matchTypeId], references: [id])
+  matchTypeId Int
+
+  result      MatchResult
+  rating      Int          // 1–10
+  goals       Int
+  cost        Int
+
+  createdAt   DateTime     @default(now())
+}

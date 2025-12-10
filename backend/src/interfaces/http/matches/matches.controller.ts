@@ -3,23 +3,48 @@ import { prisma } from '../../../infrastructure/prisma/client';
 import {
   createMatchSchema,
   updateMatchSchema,
-  allowedResults,
+  listMatchesQuerySchema,
 } from './matches.validations';
 
 export const matchesController = {
   list: async (req: Request, res: Response) => {
-    const userId = (req as any).userId;
+    try {
+      const userId = (req as any).userId;
 
-    const matches = await prisma.match.findMany({
-      where: { userId },
-      orderBy: { date: 'desc' },
-      include: {
-        field: true,
-        matchType: true,
-      },
-    });
+      const query = listMatchesQuerySchema.parse(req.query);
 
-    return res.json(matches);
+      const where: any = { userId };
+
+      if (query.fieldId !== undefined) {
+        where.fieldId = query.fieldId;
+      }
+
+      if (query.matchTypeId !== undefined) {
+        where.matchTypeId = query.matchTypeId;
+      }
+
+      if (query.fromDate || query.toDate) {
+        where.date = {};
+        if (query.fromDate) where.date.gte = new Date(query.fromDate);
+        if (query.toDate) where.date.lte = new Date(query.toDate);
+      }
+
+      const orderByField = query.orderBy || 'date';
+      const orderByDirection = query.orderDir || 'desc';
+
+      const matches = await prisma.match.findMany({
+        where,
+        orderBy: { [orderByField]: orderByDirection },
+        include: {
+          field: true,
+          matchType: true,
+        },
+      });
+
+      return res.json(matches);
+    } catch (error: any) {
+      return res.status(400).json({ message: error.message });
+    }
   },
 
   create: async (req: Request, res: Response) => {

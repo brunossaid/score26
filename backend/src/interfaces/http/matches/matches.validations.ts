@@ -21,3 +21,20 @@ export const updateMatchSchema = z.object({
   goals: z.number().int().min(0).optional(),
   cost: z.number().min(0).optional(),
 });
+
+export const listMatchesQuerySchema = z.object({
+  fieldId: z
+    .string()
+    .transform((v) => Number(v))
+    .pipe(z.number().int().positive())
+    .optional(),
+  matchTypeId: z
+    .string()
+    .transform((v) => Number(v))
+    .pipe(z.number().int().positive())
+    .optional(),
+  fromDate: z.string().datetime().optional(),
+  toDate: z.string().datetime().optional(),
+  orderBy: z.enum(['date', 'goals', 'rating', 'cost']).optional(),
+  orderDir: z.enum(['asc', 'desc']).optional(),
+});

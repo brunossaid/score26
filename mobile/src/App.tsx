@@ -1,7 +1,17 @@
+import { Provider as PaperProvider } from 'react-native-paper';
+import RootNavigator from './navigation/RootNavigator';
+import { useAppTheme } from './theme/useAppTheme';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-import AppNavigator from './navigation/AppNavigator';
+import { AuthProvider } from './context/AuthContext';
 
 export default function App() {
-  return <AppNavigator />;
+  const { theme, isDark } = useAppTheme();
+  return (
+    <PaperProvider theme={theme}>
+      <StatusBar style={isDark ? 'light' : 'dark'} />
+      <AuthProvider>
+        <RootNavigator />
+      </AuthProvider>
+    </PaperProvider>
+  );
 }

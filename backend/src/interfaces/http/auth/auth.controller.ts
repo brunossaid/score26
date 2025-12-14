@@ -12,19 +12,19 @@ export const authController = {
       const user = await prisma.user.findUnique({ where: { email } });
 
       if (!user) {
-        return res.status(401).json({ message: 'invalid credentials' });
+        return res.status(401).json({ message: 'Invalid credentials' });
       }
 
       const isValid = await bcrypt.compare(password, user.passwordHash);
 
       if (!isValid) {
-        return res.status(401).json({ message: 'invalid credentials' });
+        return res.status(401).json({ message: 'Invalid credentials' });
       }
 
       const secret = process.env.JWT_SECRET;
       if (!secret) {
         console.error('JWT_SECRET is not defined');
-        return res.status(500).json({ message: 'internal server error' });
+        return res.status(500).json({ message: 'Internal server error' });
       }
 
       const token = jwt.sign(
@@ -56,13 +56,13 @@ export const authController = {
       const userId = (req as any).userId as string | undefined;
 
       if (!userId) {
-        return res.status(401).json({ message: 'unauthorized' });
+        return res.status(401).json({ message: 'Unauthorized' });
       }
 
       const user = await prisma.user.findUnique({ where: { id: userId } });
 
       if (!user) {
-        return res.status(404).json({ message: 'user not found' });
+        return res.status(404).json({ message: 'User not found' });
       }
 
       return res.json({
@@ -72,7 +72,7 @@ export const authController = {
         createdAt: user.createdAt,
       });
     } catch (error) {
-      return res.status(500).json({ message: 'internal server error' });
+      return res.status(500).json({ message: 'Internal server error' });
     }
   },
 };

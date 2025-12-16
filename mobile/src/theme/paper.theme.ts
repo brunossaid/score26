@@ -6,7 +6,7 @@ export const lightTheme = {
   colors: {
     ...MD3LightTheme.colors,
     background: '#ffffff',
-    surface: '#ffffff',
+    surface: '#F2F2F2',
     primary: '#16BA99',
     onSurfaceVariant: '#000000',
     onBackground: '#000000',
@@ -18,8 +18,8 @@ export const darkTheme = {
   roundness: 25,
   colors: {
     ...MD3DarkTheme.colors,
-    background: '#000000ff',
-    surface: '#000000',
+    background: '#000000',
+    surface: '#121212',
     primary: '#16BA99',
     onSurfaceVariant: '#ffffff',
     onBackground: '#ffffff',

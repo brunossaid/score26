@@ -1,4 +1,13 @@
-import { View, Text, Image, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  LayoutAnimation,
+  Platform,
+  UIManager,
+} from 'react-native';
+import { useTheme } from 'react-native-paper';
 import { Button, SegmentedButtons, TextInput } from 'react-native-paper';
 import { useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -6,7 +15,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as authApi from '../api/auth';
 import { saveAuth } from '../storage/auth.storage';
 import { useAuth } from '../context/AuthContext';
-
 import {
   loginSchema,
   registerSchema,
@@ -16,8 +24,25 @@ import {
 type AuthMode = 'login' | 'register';
 
 export default function LoginScreen() {
+  const { colors } = useTheme();
+
   const [mode, setMode] = useState<AuthMode>('login');
   const { login } = useAuth();
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  // animacion para cuando se focusea un input
+  const [isFocused, setIsFocused] = useState(false);
+  const setFocusedAnimated = (next: boolean) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setIsFocused(next);
+  };
+  if (
+    Platform.OS === 'android' &&
+    UIManager.setLayoutAnimationEnabledExperimental
+  ) {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+  }
 
   const schema = useMemo(
     () => (mode === 'login' ? loginSchema : registerSchema),
@@ -81,9 +106,14 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Image source={require('../../assets/score.png')} style={styles.image} />
-      <Text style={styles.title}>score26</Text>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, isFocused && styles.headerFocused]}>
+        <Image
+          source={require('../../assets/score.png')}
+          style={[styles.image, isFocused && styles.imageFocused]}
+        />
+        <Text style={styles.title}>score26</Text>
+      </View>
 
       <SegmentedButtons
         value={mode}
@@ -106,7 +136,8 @@ export default function LoginScreen() {
               mode="outlined"
               value={value}
               onChangeText={onChange}
-              onBlur={onBlur}
+              onFocus={() => setFocusedAnimated(true)}
+              onBlur={() => setFocusedAnimated(false)}
               autoCapitalize="none"
               keyboardType="email-address"
               style={styles.input}
@@ -130,7 +161,8 @@ export default function LoginScreen() {
                   mode="outlined"
                   value={value ?? ''}
                   onChangeText={onChange}
-                  onBlur={onBlur}
+                  onFocus={() => setFocusedAnimated(true)}
+                  onBlur={() => setFocusedAnimated(false)}
                   style={styles.input}
                   error={!!errors.name}
                 />
@@ -154,10 +186,17 @@ export default function LoginScreen() {
               mode="outlined"
               value={value}
               onChangeText={onChange}
-              onBlur={onBlur}
-              secureTextEntry
+              onFocus={() => setFocusedAnimated(true)}
+              onBlur={() => setFocusedAnimated(false)}
+              secureTextEntry={!showPassword}
               style={styles.input}
               error={!!errors.password}
+              right={
+                <TextInput.Icon
+                  icon={showPassword ? 'eye-off' : 'eye'}
+                  onPress={() => setShowPassword((v) => !v)}
+                />
+              }
             />
           )}
         />
@@ -179,10 +218,17 @@ export default function LoginScreen() {
                   mode="outlined"
                   value={value ?? ''}
                   onChangeText={onChange}
-                  onBlur={onBlur}
-                  secureTextEntry
+                  onFocus={() => setFocusedAnimated(true)}
+                  onBlur={() => setFocusedAnimated(false)}
+                  secureTextEntry={!showPassword}
                   style={styles.input}
                   error={!!errors.confirmPassword}
+                  right={
+                    <TextInput.Icon
+                      icon={showPassword ? 'eye-off' : 'eye'}
+                      onPress={() => setShowPassword((v) => !v)}
+                    />
+                  }
                 />
               )}
             />
@@ -217,10 +263,29 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 100,
     alignItems: 'center',
-    backgroundColor: '#000',
   },
   title: { fontSize: 40, fontWeight: 'bold', color: '#fff' },
-  image: { width: 200, height: 200, resizeMode: 'contain', marginBottom: 10 },
+  header: {
+    alignItems: 'center',
+  },
+  headerFocused: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+
+  image: {
+    width: 200,
+    height: 200,
+    resizeMode: 'contain',
+    marginBottom: 10,
+  },
+  imageFocused: {
+    width: 60,
+    height: 60,
+    marginBottom: 0,
+    marginRight: 12,
+  },
   mode: { width: 300, marginTop: 20 },
   form: { marginTop: 20, width: 300 },
   input: { marginBottom: 12 },
